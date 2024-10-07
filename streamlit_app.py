@@ -1,6 +1,9 @@
 import streamlit as st
 from PIL import Image, ImageOps
 import random
+from datetime import datetime, timedelta
+import pandas as pd
+
 
 # Título de la aplicación
 st.title('Procesamiento básico de imágenes')
@@ -132,3 +135,91 @@ if st.button("Enviar respuesta"):
             st.session_state.score = 0
 else:
     st.write("Envía tu respuesta para continuar.")
+
+def get_zodiac_sign(day, month):
+    if (month == 1 and day >= 20) or (month == 2 and day <= 18):
+        return "Acuario"
+    elif (month == 2 and day >= 19) or (month == 3 and day <= 20):
+        return "Piscis"
+    elif (month == 3 and day >= 21) or (month == 4 and day <= 19):
+        return "Aries"
+    elif (month == 4 and day >= 20) or (month == 5 and day <= 20):
+        return "Tauro"
+    elif (month == 5 and day >= 21) or (month == 6 and day <= 20):
+        return "Géminis"
+    elif (month == 6 and day >= 21) or (month == 7 and day <= 22):
+        return "Cáncer"
+    elif (month == 7 and day >= 23) or (month == 8 and day <= 22):
+        return "Leo"
+    elif (month == 8 and day >= 23) or (month == 9 and day <= 22):
+        return "Virgo"
+    elif (month == 9 and day >= 23) or (month == 10 and day <= 22):
+        return "Libra"
+    elif (month == 10 and day >= 23) or (month == 11 and day <= 21):
+        return "Escorpio"
+    elif (month == 11 and day >= 22) or (month == 12 and day <= 21):
+        return "Sagitario"
+    elif (month == 12 and day >= 22) or (month == 1 and day <= 19):
+        return "Capricornio"
+
+# Título de la aplicación
+st.title("🔮 Adivina tu Signo Zodiacal")
+
+# Entrada de fecha de nacimiento
+birth_date = st.date_input("Introduce tu fecha de nacimiento")
+
+# Verificar si se ha introducido la fecha
+if birth_date:
+    # Obtener el día y el mes de la fecha de nacimiento
+    day = birth_date.day
+    month = birth_date.month
+
+    # Determinar el signo zodiacal
+    zodiac_sign = get_zodiac_sign(day, month)
+
+    # Mostrar el resultado
+    st.write(f"Tu signo zodiacal es: **{zodiac_sign}**")
+else:
+    st.write("Por favor, introduce tu fecha de nacimiento.")
+# Título de la aplicación
+st.title('📅 Agenda Personal')
+
+# Definir el almacenamiento de eventos en el estado de la aplicación
+if 'events' not in st.session_state:
+    st.session_state.events = []
+
+# Función para añadir un evento
+def add_event(event_name, event_date, event_time):
+    event_datetime = datetime.combine(event_date, event_time)
+    st.session_state.events.append({"Evento": event_name, "Fecha y Hora": event_datetime})
+    st.success(f'Evento "{event_name}" agregado para el {event_datetime.strftime("%d/%m/%Y a las %H:%M")}')
+
+# Formulario para agregar un nuevo evento
+st.subheader('Agregar un nuevo evento')
+
+# Entrada para el nombre del evento
+event_name = st.text_input('Nombre del evento')
+
+# Entrada para la fecha del evento
+event_date = st.date_input('Fecha del evento')
+
+# Entrada para la hora del evento
+event_time = st.time_input('Hora del evento')
+
+# Botón para agregar el evento
+if st.button('Agregar Evento'):
+    if event_name:
+        add_event(event_name, event_date, event_time)
+    else:
+        st.error('Por favor, introduce un nombre para el evento.')
+
+# Mostrar los eventos programados
+st.subheader('Eventos Programados')
+
+# Si hay eventos, mostrar una tabla con el cronograma
+if st.session_state.events:
+    events_df = pd.DataFrame(st.session_state.events)
+    events_df = events_df.sort_values(by="Fecha y Hora")  # Ordenar por fecha y hora
+    st.table(events_df)
+else:
+    st.write("No tienes eventos programados. Agrega uno utilizando el formulario de arriba.")
